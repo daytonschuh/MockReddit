@@ -10,6 +10,7 @@
   - Caddy
   - Locustio
   - Flask
+  - Flask-Login
   - Flask_SQLAlchemy
   - Flask_Marshmallow
   - Marshmallow_SQLAlchemy
