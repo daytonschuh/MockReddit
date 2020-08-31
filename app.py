@@ -22,14 +22,18 @@ def get_pst_time():
     pstDateTime = date
     return pstDateTime
 
+# Landing
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    global user_name
+    global auth
+    if request.method == 'POST':
+        user_name = request.form.get('')
+        auth = request.form.get('authToken')
+    return render_template("index.html", user_name=user_name, auth=auth)
 
-@app.route('/')
-def hello_world():
-    return 'Hello World CPSC449!'
-
-
-# Fixed for reading json -- Dayton
-@app.route('/register', methods=['POST'])
+# Register a user
+@app.route('/api/v1/register', methods=['POST'])
 def register():
     form = request.form
     email = form['email']
@@ -53,8 +57,8 @@ def register():
         return jsonify(message='User created successfully!'), 201
 
 
-# Fixed for reading json -- Dayton
-@app.route('/update_email', methods=['PUT'])
+# Update user email
+@app.route('/api/v1/update_email', methods=['PUT'])
 def update_email():
     form = request.form
     user_name = form['user_name']
@@ -68,8 +72,8 @@ def update_email():
         return jsonify(message='Failed to update email!'), 404
 
 
-# Fixed for reading json -- Dayton
-@app.route('/increment_karma', methods=['PUT'])
+# Increment karma for user
+@app.route('/api/v1/increment_karma', methods=['PUT'])
 def increment_karma():
     form = request.form
     user_name = form['user_name']
@@ -83,8 +87,8 @@ def increment_karma():
         return jsonify(message='Failed to increment karma!'), 404
 
 
-# Added function -- Dayton
-@app.route('/decrement_karma', methods=['PUT'])
+# Decrement karma for user
+@app.route('/api/v1/decrement_karma', methods=['PUT'])
 def decrement_karma():
     form = request.form
     user_name = form['user_name']
@@ -98,10 +102,10 @@ def decrement_karma():
         return jsonify(message='Failed to decrement karma!'), 404
 
 
-# Removed GET method -- Dayton
-@app.route('/deactivate_account/<string:user_name>', methods=['DELETE'])
-def remove_account(user_name):
-    user_name = User.query.filter_by(user_name=user_name).first()
+# Delete a user
+@app.route('/api/v1/deactivate_account/<int:user_id>', methods=['DELETE'])
+def remove_account(user_id):
+    user_name = User.query.filter_by(user_id=user_id).first()
     if user_name:
         db.session.delete(user_name)
         db.session.commit()
@@ -110,8 +114,8 @@ def remove_account(user_name):
         return jsonify(message="Failed to delete user!"), 404
 
 
-# Fixed for readinhttps://sqlitebrowser.org/g json -- Dayton
-@app.route('/create_post', methods=['POST'])
+# Create a post
+@app.route('/api/v1/create_post', methods=['POST'])
 def create_post():
     form = request.form
     user_name = form['user_name']
@@ -136,11 +140,11 @@ def create_post():
     else:
         return jsonify(message='Failed to create post!'), 409
 
-
-@app.route('/delete_post/<int:id>', methods=['DELETE'])
-def remove_post(id: int):
-    post = Post.query.filter_by(post_id=id).first()
-    vote = Vote.query.filter_by(post_id=id).first()
+# Delete a post
+@app.route('/api/v1/delete_post/<int:post_id>', methods=['DELETE'])
+def remove_post(post_id: int):
+    post = Post.query.filter_by(post_id=post_id).first()
+    vote = Vote.query.filter_by(post_id=post_id).first()
     if post:
         db.session.delete(post)
         db.session.delete(vote)
@@ -150,8 +154,8 @@ def remove_post(id: int):
         return jsonify(message="Failed to delete post!"), 404
 
 
-# Slight edit to add a success message -- Dayton
-@app.route('/retrieve_post/<int:id>', methods=['GET'])
+# Retrieve a post
+@app.route('/api/v1/retrieve_post/<int:id>', methods=['GET'])
 def retrieve_post(id: int):
     post = Post.query.filter_by(post_id=id).first()
     if post:
@@ -161,8 +165,8 @@ def retrieve_post(id: int):
         return jsonify(message="Failed to retrieve post!"), 404
 
 
-# Fixed for project specifications -- Dayton
-@app.route('/list_posts_comm/<string:community>/<int:number>', methods=['GET'])
+# Retrieve a list of posts from a community
+@app.route('/api/v1/list_posts_comm/<string:community>/<int:number>', methods=['GET'])
 def list_post_comm(community: str, number: int):
     post = Post.query.filter_by(community=community).order_by(Post.create_time.desc()).limit(number)
     if post:
@@ -172,8 +176,8 @@ def list_post_comm(community: str, number: int):
         return jsonify('Failed to retrieve posts!'), 404
 
 
-# Fixed for project specifications -- Dayton
-@app.route('/list_posts/<int:number>', methods=['GET'])
+# Retrieve a specific number of posts
+@app.route('/api/v1/list_posts/<int:number>', methods=['GET'])
 def list_posts(number: int):
     posts_list = Post.query.order_by(Post.create_time.desc()).limit(number)
     if posts_list:
@@ -182,8 +186,9 @@ def list_posts(number: int):
     else:
         return jsonify('Failed to retrieve posts!'), 404
 
-
-@app.route('/up_vote_post/<int:post_id>', methods=['PUT'])
+    
+# Upvote a post
+@app.route('/api/v1/up_vote_post/<int:post_id>', methods=['PUT'])
 def up_vote_post(post_id: int):
     vote = Vote.query.filter_by(post_id=post_id).first()
     if vote:
@@ -196,7 +201,8 @@ def up_vote_post(post_id: int):
         return jsonify('Failed to upvote post!'), 404
 
 
-@app.route('/down_vote_post/<int:post_id>', methods=['PUT'])
+# Downvote a post
+@app.route('/api/v1/down_vote_post/<int:post_id>', methods=['PUT'])
 def down_vote_post(post_id: int):
     vote = Vote.query.filter_by(post_id=post_id).first()
     if vote:
@@ -209,7 +215,8 @@ def down_vote_post(post_id: int):
         return jsonify(vote), 404
 
 
-@app.route('/list_post_votes/<int:post_id>', methods=['GET'])
+# Retrieve post votes
+@app.route('/api/v1/list_post_votes/<int:post_id>', methods=['GET'])
 def list_post_votes(post_id: int):
     vote = Vote.query.filter_by(post_id=post_id).order_by().first()
     if vote:
@@ -219,24 +226,8 @@ def list_post_votes(post_id: int):
         return jsonify(message="That post does not exist"), 404
 
 
-@app.route('/list_n_post_votes/<int:n>', methods=['GET'])
-def list_n_post_votes(n: int):
-    vote = Vote.query.order_by(Vote.votes.desc()).limit(n)
-    if vote:
-        result = {'votes':votes_schema.dump(vote), 'message':'Votes retrieved successfully!'}
-        return jsonify(result), 202
-    else:
-        return jsonify(message="That post votes does not exist"), 404
-
-
-@app.route('/list_post_votes_in_list/<string:titles>', methods=['GET'])
-def list_post_votes_in_list(titles: str):
-    votes_list = Vote.query.filter(Vote.post_id.in_(titles.split(','))).order_by(Vote.create_time.desc())
-    result = {'message':'Titles collected successfully!','votes list':votes_schema.dump(votes_list)}
-    return jsonify(result)
-
-
-@app.route('/send_message', methods=['POST'])
+# Send a message
+@app.route('/api/v1/send_message', methods=['POST'])
 def send_message():
     form = request.form
     user_to = form['user_to']
@@ -257,7 +248,8 @@ def send_message():
         return jsonify(message='Failed to send message!'), 409
 
 
-@app.route('/delete_message/<int:message_id>', methods=['DELETE'])
+# Delete a message
+@app.route('/api/v1/delete_message/<int:message_id>', methods=['DELETE'])
 def delete_message(message_id: int):
     message = Message.query.filter_by(message_id=message_id).first()
     if message:
@@ -268,7 +260,8 @@ def delete_message(message_id: int):
         return jsonify(message="Failed to delete message!"), 404
 
 
-@app.route('/favorite_message/<int:message_id>', methods=['PUT'])
+# Favorite a message
+@app.route('/api/v1/favorite_message/<int:message_id>', methods=['PUT'])
 def list_favorite_messages(message_id: int):
     message = Message.query.filter_by(message_id=message_id)
     if message:
