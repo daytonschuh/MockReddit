@@ -1,6 +1,7 @@
 curl https://getcaddy.com | bash -s personal
 sudo apt-get install python3
 sudo pip3 install flask
+sudo pip3 install flask-login
 sudo pip3 install flask_sqlalchemy
 sudo pip3 install flask_marshmallow
 sudo gem install foreman
