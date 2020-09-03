@@ -1,7 +1,7 @@
 # MockReddit
 
 ## Introduction
-  This project was developed with python in the PyCharm IDE using Flask and SQLAlchemy. It implements post, account, vote and message microservices by making use of HTTP methods. Early development testing was done using Postman, but has since been updated to test through bash scripts and Locustio. Foreman manages the process of our WSGI container, Gunicorn.
+  This project was developed with python in the PyCharm IDE using Flask and SQLAlchemy. It implements post, account, vote and message microservices by making use of HTTP methods. Early development testing was done using Postman, but has since been updated to test through bash scripts and Locustio. Foreman manages the process of our WSGI container, Gunicorn. If you want something prettier to look at, try: <a href="https://www.github.com/daytonschuh/Redidit">Redidit</a>.
 
 ## Tech Stack
   - Python
